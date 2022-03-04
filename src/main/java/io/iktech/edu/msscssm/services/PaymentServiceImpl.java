@@ -11,6 +11,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import javax.transaction.Transactional;
 
@@ -67,19 +68,19 @@ public class PaymentServiceImpl implements PaymentService {
                 .withPayload(event)
                 .setHeader(PAYMENT_ID_HEADER, paymentId)
                 .build();
-        sm.sendEvent(msg);
+        sm.sendEvent(Mono.just(msg)).doOnComplete(() -> System.out.printf("Event %s sent%n", event)).subscribe();
     }
 
     private StateMachine<PaymentState, PaymentEvent> build(Long paymentId) {
         Payment payment = paymentRepository.getById(paymentId);
 
         StateMachine<PaymentState, PaymentEvent> sm = stateMachineFactory.getStateMachine(Long.toString(payment.getId()));
-        sm.stop();
+        sm.stopReactively().subscribe();
         sm.getStateMachineAccessor().doWithAllRegions(sma -> {
             sma.addStateMachineInterceptor(paymentStateChangeInterceptor);
-            sma.resetStateMachine(new DefaultStateMachineContext<>(payment.getState(), null, null, null));
+            sma.resetStateMachineReactively(new DefaultStateMachineContext<>(payment.getState(), null, null, null)).subscribe();
         });
-        sm.start();
+        sm.startReactively().subscribe();
         return sm;
     }
 }
