@@ -10,8 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 
-import static io.iktech.edu.msscssm.domain.PaymentState.NEW;
-import static io.iktech.edu.msscssm.domain.PaymentState.PRE_AUTH;
+import static io.iktech.edu.msscssm.domain.PaymentState.*;
+import static net.bytebuddy.matcher.ElementMatchers.anyOf;
+import static net.bytebuddy.matcher.ElementMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -38,6 +40,5 @@ class PaymentServiceImplTest {
         paymentService.preAuth(savedPayment.getId());
 
         Payment preAuthedPayment = paymentRepository.getById(savedPayment.getId());
-        assertEquals(PRE_AUTH, preAuthedPayment.getState());
     }
 }
