@@ -13,6 +13,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import reactor.core.publisher.Mono;
 
 import java.util.EnumSet;
 import java.util.Random;
@@ -77,10 +78,10 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<PaymentSta
             System.out.println("PreAuth was called");
             if (new Random().nextInt(10) < 8) {
                 System.out.println("Approved");
-                context.getStateMachine().sendEvent(MessageBuilder.withPayload(PRE_AUTH_APPROVED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build());
+                context.getStateMachine().sendEvent(Mono.just(MessageBuilder.withPayload(PRE_AUTH_APPROVED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build())).subscribe();
             } else {
                 System.out.println("Declined: no credit!");
-                context.getStateMachine().sendEvent(MessageBuilder.withPayload(PRE_AUTH_DECLINED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build());
+                context.getStateMachine().sendEvent(Mono.just(MessageBuilder.withPayload(PRE_AUTH_DECLINED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build())).subscribe();
             }
         };
     }
@@ -90,10 +91,10 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<PaymentSta
             System.out.println("Auth was called");
             if (new Random().nextInt(10) < 7) {
                 System.out.println("Auth Approved");
-                context.getStateMachine().sendEvent(MessageBuilder.withPayload(AUTH_APPROVED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build());
+                context.getStateMachine().sendEvent(Mono.just(MessageBuilder.withPayload(AUTH_APPROVED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build())).subscribe();
             } else {
                 System.out.println("Auth Declined: authorization error!");
-                context.getStateMachine().sendEvent(MessageBuilder.withPayload(AUTH_DECLINED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build());
+                context.getStateMachine().sendEvent(Mono.just(MessageBuilder.withPayload(AUTH_DECLINED).setHeader(PAYMENT_ID_HEADER, context.getMessageHeader(PAYMENT_ID_HEADER)).build())).subscribe();
             }
         };
     }
