@@ -47,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     public StateMachine<PaymentState, PaymentEvent> authorise(Long paymentId) {
         StateMachine<PaymentState, PaymentEvent> sm = build(paymentId);
 
-        sendEvent(paymentId, sm, AUTH_APPROVED);
+        sendEvent(paymentId, sm, AUTHORIZE);
 
         return sm;
     }
